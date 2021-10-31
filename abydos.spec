@@ -4,12 +4,13 @@
 #
 Name     : abydos
 Version  : 0.5.0
-Release  : 1
+Release  : 2
 URL      : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Source0  : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Summary  : Abydos NLP/IR library
 Group    : Development/Tools
-License  : GPL-3.0+
+License  : GPL-3.0 GPL-3.0+
+Requires: abydos-license = %{version}-%{release}
 Requires: abydos-python = %{version}-%{release}
 Requires: abydos-python3 = %{version}-%{release}
 Requires: deprecation
@@ -38,6 +39,14 @@ BuildRequires : numpy
         +------------------+------------------------------------------------------+
         | conda-forge      | |conda| |conda-dl| |conda-platforms|                 |
         +------------------+------------------------------------------------------+
+
+%package license
+Summary: license components for the abydos package.
+Group: Default
+
+%description license
+license components for the abydos package.
+
 
 %package python
 Summary: python components for the abydos package.
@@ -69,21 +78,23 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1612294505
+export SOURCE_DATE_EPOCH=1635700559
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
-export CFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=4 "
-export FCFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
-export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=4 "
-export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=4 "
+export CFLAGS="$CFLAGS -O3 -ffat-lto-objects -flto=auto "
+export FCFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=auto "
+export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=auto "
+export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=auto "
 export MAKEFLAGS=%{?_smp_mflags}
 python3 setup.py build
 
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/package-licenses/abydos
+cp %{_builddir}/abydos-0.5.0/LICENSE %{buildroot}/usr/share/package-licenses/abydos/df07b60f0574125f0136eaa0f2dbdc382bfc647b
 python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
@@ -91,6 +102,10 @@ echo ----[ mark ]----
 
 %files
 %defattr(-,root,root,-)
+
+%files license
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/abydos/df07b60f0574125f0136eaa0f2dbdc382bfc647b
 
 %files python
 %defattr(-,root,root,-)
