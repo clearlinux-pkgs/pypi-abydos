@@ -4,12 +4,13 @@
 #
 Name     : pypi-abydos
 Version  : 0.5.0
-Release  : 4
+Release  : 5
 URL      : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Source0  : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Summary  : Abydos NLP/IR library
 Group    : Development/Tools
 License  : GPL-3.0 GPL-3.0+
+Requires: pypi-abydos-filemap = %{version}-%{release}
 Requires: pypi-abydos-license = %{version}-%{release}
 Requires: pypi-abydos-python = %{version}-%{release}
 Requires: pypi-abydos-python3 = %{version}-%{release}
@@ -38,6 +39,14 @@ BuildRequires : pypi(numpy)
         | conda-forge      | |conda| |conda-dl| |conda-platforms|                 |
         +------------------+------------------------------------------------------+
 
+%package filemap
+Summary: filemap components for the pypi-abydos package.
+Group: Default
+
+%description filemap
+filemap components for the pypi-abydos package.
+
+
 %package license
 Summary: license components for the pypi-abydos package.
 Group: Default
@@ -58,6 +67,7 @@ python components for the pypi-abydos package.
 %package python3
 Summary: python3 components for the pypi-abydos package.
 Group: Default
+Requires: pypi-abydos-filemap = %{version}-%{release}
 Requires: python3-core
 Provides: pypi(abydos)
 Requires: pypi(deprecation)
@@ -70,13 +80,16 @@ python3 components for the pypi-abydos package.
 %prep
 %setup -q -n abydos-0.5.0
 cd %{_builddir}/abydos-0.5.0
+pushd ..
+cp -a abydos-0.5.0 buildavx2
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1641407812
+export SOURCE_DATE_EPOCH=1652991998
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -87,6 +100,15 @@ export FFLAGS="$FFLAGS -O3 -ffat-lto-objects -flto=auto "
 export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=auto "
 export MAKEFLAGS=%{?_smp_mflags}
 python3 -m build --wheel --skip-dependency-check --no-isolation
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 -m build --wheel --skip-dependency-check --no-isolation
+
+popd
 
 %install
 export MAKEFLAGS=%{?_smp_mflags}
@@ -97,9 +119,22 @@ pip install --root=%{buildroot} --no-deps --ignore-installed dist/*.whl
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+pip install --root=%{buildroot}-v3 --no-deps --ignore-installed dist/*.whl
+popd
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
+
+%files filemap
+%defattr(-,root,root,-)
+/usr/share/clear/filemap/filemap-pypi-abydos
 
 %files license
 %defattr(0644,root,root,0755)
