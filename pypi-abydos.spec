@@ -4,7 +4,7 @@
 #
 Name     : pypi-abydos
 Version  : 0.5.0
-Release  : 12
+Release  : 13
 URL      : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Source0  : https://files.pythonhosted.org/packages/30/53/4d8dfccbbfe6031a2293941d718dfda7cf2e39883f915b5e3b2c057b518c/abydos-0.5.0.tar.gz
 Summary  : Abydos NLP/IR library
